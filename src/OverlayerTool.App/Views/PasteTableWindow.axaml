@@ -1,0 +1,28 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="OverlayerTool.App.Views.PasteTableWindow"
+        Title="粘贴表格数据"
+        Width="640"
+        Height="420"
+        WindowStartupLocation="CenterOwner">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="16">
+    <TextBlock Grid.Row="0"
+               Text="粘贴从 Excel 或表格软件复制的数据（首行作为表头）："
+               TextWrapping="Wrap"
+               Margin="0,0,0,8"/>
+    <TextBox x:Name="TableTextBox"
+             Grid.Row="1"
+             AcceptsReturn="True"
+             AcceptsTab="True"
+             TextWrapping="Wrap"
+             PlaceholderText="在此粘贴表格内容..."/>
+    <StackPanel Grid.Row="2"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                Spacing="8"
+                Margin="0,12,0,0">
+      <Button Content="取消" Click="OnCancelClick"/>
+      <Button Content="确定" Click="OnConfirmClick" Classes="accent"/>
+    </StackPanel>
+  </Grid>
+</Window>

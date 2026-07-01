@@ -1,0 +1,209 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:OverlayerTool.App.ViewModels"
+        xmlns:controls="using:OverlayerTool.App.Controls"
+        xmlns:models="using:OverlayerTool.Core.Models"
+        mc:Ignorable="d"
+        d:DesignWidth="1280"
+        d:DesignHeight="800"
+        x:Class="OverlayerTool.App.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="OverlayerTool"
+        Width="1280"
+        Height="800"
+        KeyDown="OnWindowKeyDown">
+  <Design.DataContext>
+    <vm:MainViewModel/>
+  </Design.DataContext>
+
+  <Grid RowDefinitions="Auto,*,Auto,200">
+    <!-- Toolbar -->
+    <Border Grid.Row="0" Padding="8" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}" BorderThickness="0,0,0,1">
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <Button Content="新建" Command="{Binding NewProjectCommand}"/>
+        <Button Content="打开项目" Command="{Binding OpenProjectCommand}"/>
+        <Button Content="保存" Command="{Binding SaveProjectCommand}"/>
+        <Separator Width="1" Height="24" Background="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"/>
+        <Button Content="导入底板" Command="{Binding ImportBaseImageCommand}"/>
+        <Button Content="导入示例图" Command="{Binding ImportReferenceImageCommand}"/>
+        <Separator Width="1" Height="24" Background="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"/>
+        <Button Content="选择输出目录" Command="{Binding PickOutputDirectoryCommand}"/>
+        <Button Content="开始生成" Command="{Binding GenerateCommand}" Classes="accent"/>
+        <Button Content="取消生成" Command="{Binding CancelGenerateCommand}" IsVisible="{Binding IsGenerating}"/>
+      </StackPanel>
+    </Border>
+
+    <!-- Main editor -->
+    <Grid Grid.Row="1" ColumnDefinitions="220,*,260" Margin="8">
+      <!-- Region list + font management -->
+      <Grid Grid.Column="0" RowDefinitions="*,Auto">
+        <Border Grid.Row="0" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}" BorderThickness="1" Padding="8" Margin="0,0,0,8">
+          <Grid RowDefinitions="Auto,*,Auto">
+            <TextBlock Grid.Row="0" Text="绘制区域" FontWeight="SemiBold" Margin="0,0,0,8"/>
+            <ListBox Grid.Row="1"
+                     ItemsSource="{Binding Regions}"
+                     SelectedItem="{Binding SelectedRegion}"
+                     SelectionChanged="OnRegionSelectionChanged">
+              <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:RegionItemViewModel">
+                  <TextBlock Text="{Binding Name}"/>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+            <StackPanel Grid.Row="2" Spacing="8" Margin="0,8,0,0">
+              <Button Content="+ 添加区域" Command="{Binding AddRegionCommand}"/>
+              <Button Content="删除选中" Command="{Binding DeleteSelectedRegionCommand}"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <Border Grid.Row="1" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}" BorderThickness="1" Padding="8">
+          <Grid RowDefinitions="Auto,*,Auto">
+            <TextBlock Grid.Row="0" Text="字体管理" FontWeight="SemiBold" Margin="0,0,0,8"/>
+            <ListBox Grid.Row="1"
+                     ItemsSource="{Binding CustomFonts}"
+                     SelectedItem="{Binding SelectedCustomFont}">
+              <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:CustomFontItemViewModel">
+                  <TextBlock Text="{Binding DisplayName}"/>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+            <StackPanel Grid.Row="2" Spacing="8" Margin="0,8,0,0">
+              <Button Content="上传字体" Command="{Binding ImportFontCommand}"/>
+              <Button Content="删除字体" Command="{Binding DeleteSelectedFontCommand}"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+      </Grid>
+
+      <!-- Canvas / Preview -->
+      <Border Grid.Column="1" Margin="8,0" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}" BorderThickness="1">
+        <Panel>
+          <!-- Edit mode -->
+          <Grid IsVisible="{Binding !IsPreviewMode}" RowDefinitions="*,Auto">
+            <controls:RegionCanvas x:Name="RegionCanvasControl"
+                                   Grid.Row="0"
+                                   BaseImage="{Binding BaseImage}"
+                                   ReferenceImage="{Binding ReferenceImage}"
+                                   ReferenceOpacity="{Binding ReferenceOpacity}"
+                                   ShowReferenceImage="{Binding ShowReferenceImage}"
+                                   Zoom="{Binding CanvasZoom, Mode=TwoWay}"/>
+            <StackPanel Grid.Row="1" Margin="8" Spacing="8">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Content="缩小" Command="{Binding ZoomOutCanvasCommand}"/>
+                <TextBlock Text="{Binding CanvasZoom, StringFormat=缩放: {0:P0}}" VerticalAlignment="Center" MinWidth="80"/>
+                <Button Content="放大" Command="{Binding ZoomInCanvasCommand}"/>
+                <Button Content="重置视图" Command="{Binding ResetCanvasViewCommand}"/>
+                <TextBlock Text="滚轮缩放 · 右键拖拽平移" VerticalAlignment="Center" Opacity="0.6" Margin="8,0,0,0"/>
+              </StackPanel>
+              <StackPanel Orientation="Horizontal" Spacing="12">
+                <CheckBox Content="显示示例图" IsChecked="{Binding ShowReferenceImage}"/>
+                <TextBlock Text="示例图透明度:" VerticalAlignment="Center"/>
+                <Slider Minimum="0" Maximum="1" Width="160" Value="{Binding ReferenceOpacity}"/>
+                <TextBlock Text="{Binding ReferenceOpacity, StringFormat={}{0:P0}}" VerticalAlignment="Center"/>
+              </StackPanel>
+            </StackPanel>
+          </Grid>
+
+          <!-- Preview mode -->
+          <Grid IsVisible="{Binding IsPreviewMode}" RowDefinitions="Auto,*,Auto">
+            <Border Grid.Row="0" Padding="8" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}" BorderThickness="0,0,0,1">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                  <TextBlock Text="{Binding PreviewTitle}" FontWeight="SemiBold"/>
+                  <TextBlock Text="预览生成中..." IsVisible="{Binding IsPreviewLoading}" Opacity="0.7"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                  <Button Content="刷新预览" Command="{Binding RefreshPreviewCommand}"/>
+                  <Button Content="返回编辑" Command="{Binding ExitPreviewModeCommand}"/>
+                </StackPanel>
+              </Grid>
+            </Border>
+            <controls:PreviewCanvas Grid.Row="1"
+                                    PreviewImage="{Binding PreviewImage}"
+                                    BaseImage="{Binding BaseImage}"
+                                    ReferenceImage="{Binding ReferenceImage}"
+                                    CompareMode="{Binding PreviewCompareMode}"
+                                    OverlayOpacity="{Binding PreviewOverlayOpacity}"/>
+            <StackPanel Grid.Row="2" Margin="8" Spacing="8">
+              <StackPanel Orientation="Horizontal" Spacing="12">
+                <TextBlock Text="对比模式:" VerticalAlignment="Center"/>
+                <ComboBox Width="180"
+                          ItemsSource="{Binding PreviewCompareOptions}"
+                          SelectedItem="{Binding SelectedPreviewCompareOption}"/>
+              </StackPanel>
+              <StackPanel Orientation="Horizontal" Spacing="12" IsVisible="{Binding ShowPreviewOverlayOpacity}">
+                <TextBlock Text="叠加透明度:" VerticalAlignment="Center"/>
+                <Slider Minimum="0" Maximum="1" Width="160" Value="{Binding PreviewOverlayOpacity}"/>
+                <TextBlock Text="{Binding PreviewOverlayOpacity, StringFormat={}{0:P0}}" VerticalAlignment="Center"/>
+              </StackPanel>
+            </StackPanel>
+          </Grid>
+        </Panel>
+      </Border>
+
+      <!-- Region properties -->
+      <Border Grid.Column="2" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}" BorderThickness="1" Padding="8"
+              IsEnabled="{Binding HasSelectedRegion}">
+        <ScrollViewer>
+          <StackPanel Spacing="10" IsEnabled="{Binding HasSelectedRegion}">
+            <StackPanel Spacing="10" DataContext="{Binding SelectedRegion}">
+              <TextBlock Text="区域属性" FontWeight="SemiBold"/>
+              <TextBox PlaceholderText="名称（与表头匹配）" Text="{Binding Name}"/>
+              <NumericUpDown Minimum="6" Maximum="200" Value="{Binding FontSize}" FormatString="0"/>
+              <TextBox PlaceholderText="颜色 (#RRGGBB)" Text="{Binding Color}"/>
+              <StackPanel>
+                <TextBlock Text="{Binding RotationDegrees, StringFormat=旋转: {0:0}°}"/>
+                <Slider Minimum="-180" Maximum="180" Value="{Binding RotationDegrees}"/>
+              </StackPanel>
+              <ComboBox x:Name="HorizontalAlignCombo" SelectedItem="{Binding HorizontalAlign}"/>
+              <ComboBox x:Name="VerticalAlignCombo" SelectedItem="{Binding VerticalAlign}"/>
+            </StackPanel>
+            <TextBlock Text="字体" FontSize="12" Opacity="0.7"/>
+            <ComboBox ItemsSource="{Binding FontOptions}"
+                      SelectedItem="{Binding SelectedRegionFontOption}">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="models:FontOption">
+                  <TextBlock Text="{Binding DisplayName}"/>
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+          </StackPanel>
+        </ScrollViewer>
+      </Border>
+    </Grid>
+
+    <!-- Progress -->
+    <StackPanel Grid.Row="2" Margin="8,0" Spacing="4" IsVisible="{Binding IsGenerating}">
+      <ProgressBar Minimum="0" Maximum="100" Value="{Binding GenerateProgress}"/>
+    </StackPanel>
+
+    <!-- Table panel -->
+    <Border Grid.Row="3" Margin="8" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}" BorderThickness="1" Padding="8">
+      <Grid RowDefinitions="Auto,*,Auto">
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
+          <TextBlock Text="表格数据" FontWeight="SemiBold" VerticalAlignment="Center"/>
+          <Button Content="粘贴导入" Command="{Binding PasteTableCommand}"/>
+          <Button Content="CSV" Command="{Binding ImportCsvCommand}"/>
+          <Button Content="Excel" Command="{Binding ImportExcelCommand}"/>
+          <TextBlock Text="{Binding MatchStatusText}" VerticalAlignment="Center" Margin="16,0,0,0"/>
+        </StackPanel>
+        <DataGrid x:Name="TableDataGrid"
+                  Grid.Row="1"
+                  ItemsSource="{Binding TableRows}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserReorderColumns="False"
+                  CanUserResizeColumns="True"
+                  GridLinesVisibility="All"/>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="0,8,0,0">
+          <TextBlock Text="{Binding StatusMessage}"/>
+          <TextBlock Text="{Binding OutputDirectory, StringFormat=输出目录: {0}}" TextTrimming="CharacterEllipsis"/>
+        </StackPanel>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

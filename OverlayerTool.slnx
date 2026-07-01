@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/OverlayerTool.Core/OverlayerTool.Core.csproj" />
+  <Project Path="src/OverlayerTool.App/OverlayerTool.App.csproj" />
+</Solution>
