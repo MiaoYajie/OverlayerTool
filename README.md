@@ -14,7 +14,7 @@
 - 保存 / 加载 `.overlayer` 项目文件夹
 
 ## 截图
-![使用截图](https://github.com/MiaoYajie/OverlayerTool/blob/main/assets/screen.png)
+![使用截图](./assets/screen.png)
 
 ## 技术栈
 
