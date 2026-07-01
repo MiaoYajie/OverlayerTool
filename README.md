@@ -104,4 +104,4 @@ my-project.overlayer/
 
 如果这个项目对你有帮助，欢迎打赏支持继续开发：
 
-![微信支付收款码](https://github.com/MiaoYajie/OverlayerTool/blob/main/assets/wechat-reward-qrcode.png)
+![微信支付收款码](./assets/wechat-reward-qrcode.png)
