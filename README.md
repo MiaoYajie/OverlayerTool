@@ -49,6 +49,21 @@ dotnet publish src/OverlayerTool.App -c Release -r osx-arm64 --self-contained fa
 
 发布产物位于 `src/OverlayerTool.App/bin/Release/net8.0/<runtime>/publish/`。
 
+### 安装包
+
+Windows（Inno Setup）与 macOS（.dmg）构建说明见 [installer/README.md](installer/README.md)。
+
+```powershell
+# Windows 一键构建（需安装 Inno Setup 6）
+.\installer\windows\build-installer.ps1
+```
+
+```bash
+# macOS 一键构建（需在 Mac 上执行）
+chmod +x installer/macos/build-installer.sh
+./installer/macos/build-installer.sh
+```
+
 ## 项目文件格式
 
 ```

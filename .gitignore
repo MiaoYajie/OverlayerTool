@@ -1,5 +1,6 @@
 bin/
 obj/
+dist/
 .vs/
 .idea/
 *.user
@@ -7,3 +8,4 @@ obj/
 *.overlayer/
 .DS_Store
 Thumbs.db
+/.workbuddy/memory
