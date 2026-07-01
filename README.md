@@ -13,6 +13,9 @@
 - 表格每行支持「预览」，在主区域查看生成效果，并与底板/示例图对比
 - 保存 / 加载 `.overlayer` 项目文件夹
 
+## 截图
+![使用截图](https://github.com/MiaoYajie/OverlayerTool/blob/main/assets/screen.png)
+
 ## 技术栈
 
 - .NET 8
@@ -86,4 +89,4 @@ my-project.overlayer/
 
 如果这个项目对你有帮助，欢迎打赏支持继续开发：
 
-![微信支付收款码](assets/wechat-reward-qrcode.png)
+![微信支付收款码](https://github.com/MiaoYajie/OverlayerTool/blob/main/assets/wechat-reward-qrcode.png)
