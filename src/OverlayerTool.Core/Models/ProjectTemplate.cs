@@ -9,5 +9,7 @@ public class ProjectTemplate
     public bool ShowReferenceImage { get; set; } = true;
     public List<TextRegion> Regions { get; set; } = [];
     public List<CustomFont> CustomFonts { get; set; } = [];
+    public OutputImageFormat OutputFormat { get; set; } = OutputImageFormat.Png;
+    public int OutputQuality { get; set; } = 100;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

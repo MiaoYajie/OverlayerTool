@@ -72,8 +72,20 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private double _canvasZoom = 1.0;
 
+    [ObservableProperty]
+    private int _outputQuality = 100;
+
+    [ObservableProperty]
+    private OutputFormatOption? _selectedOutputFormatOption;
+
     public const double CanvasMinZoom = 0.25;
     public const double CanvasMaxZoom = 5.0;
+
+    public IReadOnlyList<OutputFormatOption> OutputFormatOptions { get; } =
+    [
+        new(OutputImageFormat.Png, "PNG（无损）"),
+        new(OutputImageFormat.Jpeg, "JPEG（可压缩）")
+    ];
 
     public IReadOnlyList<PreviewCompareOption> PreviewCompareOptions { get; } =
     [
@@ -135,6 +147,27 @@ public partial class MainViewModel : ObservableObject
     public bool ShowPreviewOverlayOpacity =>
         PreviewCompareMode is PreviewCompareMode.OverlayBase or PreviewCompareMode.OverlayReference;
 
+    public string OutputQualityHint =>
+        SelectedOutputFormatOption?.Format == OutputImageFormat.Jpeg
+            ? "数值越高画质越好、文件越大"
+            : "PNG 无损；此项为压缩级别";
+
+    partial void OnOutputQualityChanged(int value)
+    {
+        _projectService.Template.OutputQuality = Math.Clamp(value, 1, 100);
+        _projectService.MarkDirty();
+    }
+
+    partial void OnSelectedOutputFormatOptionChanged(OutputFormatOption? value)
+    {
+        if (value is null)
+            return;
+
+        _projectService.Template.OutputFormat = value.Format;
+        _projectService.MarkDirty();
+        OnPropertyChanged(nameof(OutputQualityHint));
+    }
+
     partial void OnSelectedRegionChanged(RegionItemViewModel? value)
     {
         OnPropertyChanged(nameof(HasSelectedRegion));
@@ -159,6 +192,7 @@ public partial class MainViewModel : ObservableObject
     {
         RebuildFontOptions();
         SelectedPreviewCompareOption = PreviewCompareOptions[0];
+        SelectedOutputFormatOption = OutputFormatOptions[0];
     }
 
     partial void OnSelectedPreviewCompareOptionChanged(PreviewCompareOption? value)
@@ -191,6 +225,7 @@ public partial class MainViewModel : ObservableObject
         ClearTable();
         ReloadCustomFonts();
         RebuildFontOptions();
+        ReloadOutputSettings();
         StatusMessage = "已新建项目";
     }
 
@@ -647,6 +682,7 @@ public partial class MainViewModel : ObservableObject
 
         ReloadCustomFonts();
         RebuildFontOptions();
+        ReloadOutputSettings();
         UpdateSelectedRegionFontOption();
         UpdateMatchStatus(HeaderMatcher.Validate(CurrentTable.Headers, Regions.Select(r => r.Region)));
     }
@@ -672,8 +708,17 @@ public partial class MainViewModel : ObservableObject
             : FontService.FindMatchingOption(SelectedRegion.Region, FontOptions);
     }
 
+    private void ReloadOutputSettings()
+    {
+        OutputQuality = _projectService.Template.OutputQuality;
+        SelectedOutputFormatOption = OutputFormatOptions.FirstOrDefault(o => o.Format == _projectService.Template.OutputFormat)
+            ?? OutputFormatOptions[0];
+    }
+
     private void SyncRegionsToTemplate()
     {
         _projectService.Template.Regions = Regions.Select(r => r.Region.Clone()).ToList();
+        _projectService.Template.OutputFormat = SelectedOutputFormatOption?.Format ?? OutputImageFormat.Png;
+        _projectService.Template.OutputQuality = Math.Clamp(OutputQuality, 1, 100);
     }
 }

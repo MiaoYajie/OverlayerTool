@@ -30,9 +30,9 @@ public class ImageRenderer
                 cancellationToken.ThrowIfCancellationRequested();
 
                 using var output = RenderRow(baseBitmap, template, projectFolder, table, rowIndex);
-                var fileName = BuildFileName(rowIndex, table.Rows[rowIndex]);
+                var fileName = BuildFileName(rowIndex, table.Rows[rowIndex], template.OutputFormat);
                 var outputPath = Path.Combine(outputDirectory, fileName);
-                SaveBitmap(output, outputPath);
+                ImageEncoder.Save(output, outputPath, template.OutputFormat, template.OutputQuality);
                 generatedFiles.Add(outputPath);
 
                 progress?.Report(new GenerateProgress(rowIndex + 1, table.Rows.Count, fileName));
@@ -155,21 +155,13 @@ public class ImageRenderer
         return SKColors.Black;
     }
 
-    private static string BuildFileName(int rowIndex, IReadOnlyList<string> row)
+    private static string BuildFileName(int rowIndex, IReadOnlyList<string> row, OutputImageFormat format)
     {
         var suffix = row.FirstOrDefault(v => !string.IsNullOrWhiteSpace(v)) ?? "output";
         foreach (var invalid in Path.GetInvalidFileNameChars())
             suffix = suffix.Replace(invalid, '_');
 
         suffix = suffix.Length > 40 ? suffix[..40] : suffix;
-        return $"{rowIndex + 1:D4}_{suffix}.png";
-    }
-
-    private static void SaveBitmap(SKBitmap bitmap, string path)
-    {
-        using var image = SKImage.FromBitmap(bitmap);
-        using var data = image.Encode(SKEncodedImageFormat.Png, 100);
-        using var stream = File.OpenWrite(path);
-        data.SaveTo(stream);
+        return $"{rowIndex + 1:D4}_{suffix}{ImageEncoder.GetExtension(format)}";
     }
 }

@@ -29,6 +29,13 @@
         <Button Content="导入底板" Command="{Binding ImportBaseImageCommand}"/>
         <Button Content="导入示例图" Command="{Binding ImportReferenceImageCommand}"/>
         <Separator Width="1" Height="24" Background="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"/>
+        <TextBlock Text="输出格式:" VerticalAlignment="Center"/>
+        <ComboBox Width="130"
+                  ItemsSource="{Binding OutputFormatOptions}"
+                  SelectedItem="{Binding SelectedOutputFormatOption}"/>
+        <TextBlock Text="质量:" VerticalAlignment="Center"/>
+        <Slider Minimum="1" Maximum="100" Width="100" Value="{Binding OutputQuality}"/>
+        <TextBlock Text="{Binding OutputQuality, StringFormat={}{0}%}" VerticalAlignment="Center" MinWidth="36"/>
         <Button Content="选择输出目录" Command="{Binding PickOutputDirectoryCommand}"/>
         <Button Content="开始生成" Command="{Binding GenerateCommand}" Classes="accent"/>
         <Button Content="取消生成" Command="{Binding CancelGenerateCommand}" IsVisible="{Binding IsGenerating}"/>
@@ -201,6 +208,7 @@
                   GridLinesVisibility="All"/>
         <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="0,8,0,0">
           <TextBlock Text="{Binding StatusMessage}"/>
+          <TextBlock Text="{Binding OutputQualityHint}" Opacity="0.7"/>
           <TextBlock Text="{Binding OutputDirectory, StringFormat=输出目录: {0}}" TextTrimming="CharacterEllipsis"/>
         </StackPanel>
       </Grid>
