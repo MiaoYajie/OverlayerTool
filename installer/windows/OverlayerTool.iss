@@ -6,7 +6,7 @@
 #endif
 
 #define AppName "OverlayerTool"
-#define AppVersion "0.0.1"
+#define AppVersion "0.0.3"
 #define AppPublisher "myj"
 #define AppURL "https://github.com/MiaoYajie/OverlayerTool"
 #define AppExeName "OverlayerTool.App.exe"

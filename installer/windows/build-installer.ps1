@@ -1,7 +1,7 @@
-# OverlayerTool Windows 安装包构建脚本
-# 依赖：.NET 8 SDK、Inno Setup 6（ISCC.exe）
+﻿# OverlayerTool Windows installer build script
+# Requires: .NET 8 SDK, Inno Setup 6 (ISCC.exe)
 #
-# 用法：
+# Usage:
 #   .\build-installer.ps1
 #   .\build-installer.ps1 -SingleFile:$false
 
@@ -45,9 +45,9 @@ try {
 
     if (-not $iscc) {
         Write-Host ""
-        Write-Host "未找到 Inno Setup 6（ISCC.exe）。" -ForegroundColor Yellow
-        Write-Host "请安装：https://jrsoftware.org/isinfo.php" -ForegroundColor Yellow
-        Write-Host "发布文件已在：$PublishDir" -ForegroundColor Green
+        Write-Host "Inno Setup 6 (ISCC.exe) not found." -ForegroundColor Yellow
+        Write-Host "Install from: https://jrsoftware.org/isinfo.php" -ForegroundColor Yellow
+        Write-Host "Published files are at: $PublishDir" -ForegroundColor Green
         exit 0
     }
 
@@ -55,8 +55,9 @@ try {
     & $iscc $IssFile
     if ($LASTEXITCODE -ne 0) { throw "Inno Setup compile failed" }
 
+    $distDir = Join-Path $Root "dist"
     Write-Host ""
-    Write-Host "完成。安装包输出目录：$(Join-Path $Root 'dist')" -ForegroundColor Green
+    Write-Host "Done. Installer output directory: $distDir" -ForegroundColor Green
 }
 finally {
     Pop-Location
