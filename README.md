@@ -14,7 +14,7 @@
 - 保存 / 加载 `.overlayer` 项目文件夹
 
 ## 截图
-![使用截图](https://docs.qq.com/document/DVVBrcmpHbkxhYk1h)
+<p><img alt='屏幕截图' src='https://docs.qq.com/document/DVVBrcmpHbkxhYk1h'/></p>
 
 ## 技术栈
 
@@ -104,4 +104,4 @@ my-project.overlayer/
 
 如果这个项目对你有帮助，欢迎打赏支持继续开发：
 
-![微信支付收款码](https://docs.qq.com/document/DVUJJdURRZ1NiRmZM)
+<p><img alt='微信支付' src='https://docs.qq.com/document/DVUJJdURRZ1NiRmZM'/></p>
