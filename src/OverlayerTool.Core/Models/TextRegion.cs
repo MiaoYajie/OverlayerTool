@@ -8,10 +8,20 @@ public class TextRegion
     public string FontFamily { get; set; } = "Arial";
     public Guid? CustomFontId { get; set; }
     public float FontSize { get; set; } = 24;
+    public RegionFontWeight FontWeight { get; set; } = RegionFontWeight.Regular;
     public string Color { get; set; } = "#000000";
     public float RotationDegrees { get; set; }
     public HorizontalTextAlignment HorizontalAlign { get; set; } = HorizontalTextAlignment.Center;
     public VerticalTextAlignment VerticalAlign { get; set; } = VerticalTextAlignment.Center;
+
+    public static float ComputeDefaultFontSize(NormalizedRect bounds, double imageHeight)
+    {
+        if (imageHeight <= 0)
+            return 24;
+
+        var (_, _, _, rh) = bounds.ToPixels(1, imageHeight);
+        return Math.Max(6, (float)(rh * 0.9));
+    }
 
     public TextRegion Clone() => new()
     {
@@ -21,6 +31,7 @@ public class TextRegion
         FontFamily = FontFamily,
         CustomFontId = CustomFontId,
         FontSize = FontSize,
+        FontWeight = FontWeight,
         Color = Color,
         RotationDegrees = RotationDegrees,
         HorizontalAlign = HorizontalAlign,

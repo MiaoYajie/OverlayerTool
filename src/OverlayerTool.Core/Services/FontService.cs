@@ -33,10 +33,10 @@ public static class FontService
         await using (var targetStream = File.Create(targetPath))
             await sourceStream.CopyToAsync(targetStream, cancellationToken);
 
-        using var typeface = SKTypeface.FromFile(targetPath);
-        var displayName = typeface?.FamilyName;
-        if (string.IsNullOrWhiteSpace(displayName))
-            displayName = Path.GetFileNameWithoutExtension(sourcePath);
+        using var typeface = SKTypeface.FromFile(targetPath)
+            ?? throw new InvalidOperationException("无法加载字体文件");
+
+        var displayName = Path.GetFileNameWithoutExtension(sourcePath);
 
         return new CustomFont
         {
@@ -55,7 +55,10 @@ public static class FontService
         return File.Exists(path) ? path : null;
     }
 
-    public static SKTypeface ResolveTypeface(TextRegion region, ProjectTemplate template, string? projectFolder)
+    public static (SKTypeface Typeface, bool Embolden) ResolveFont(
+        TextRegion region,
+        ProjectTemplate template,
+        string? projectFolder)
     {
         if (region.CustomFontId is Guid fontId)
         {
@@ -67,12 +70,14 @@ public static class FontService
                 {
                     var typeface = SKTypeface.FromFile(path);
                     if (typeface is not null)
-                        return typeface;
+                        return (typeface, region.FontWeight == RegionFontWeight.Bold);
                 }
             }
         }
 
-        return SKTypeface.FromFamilyName(region.FontFamily) ?? SKTypeface.Default;
+        var style = region.FontWeight == RegionFontWeight.Bold ? SKFontStyle.Bold : SKFontStyle.Normal;
+        var familyTypeface = SKTypeface.FromFamilyName(region.FontFamily, style) ?? SKTypeface.Default;
+        return (familyTypeface, false);
     }
 
     public static void ApplyFontOption(TextRegion region, FontOption option)

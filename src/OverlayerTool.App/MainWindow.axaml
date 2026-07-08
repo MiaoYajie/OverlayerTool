@@ -160,7 +160,7 @@
             <StackPanel Spacing="10" DataContext="{Binding SelectedRegion}">
               <TextBlock Text="区域属性" FontWeight="SemiBold"/>
               <TextBox PlaceholderText="名称（与表头匹配）" Text="{Binding Name}"/>
-              <NumericUpDown Minimum="6" Maximum="200" Value="{Binding FontSize}" FormatString="0"/>
+              <NumericUpDown Minimum="6" Value="{Binding FontSize}" FormatString="0"/>
               <TextBox PlaceholderText="颜色 (#RRGGBB)" Text="{Binding Color}"/>
               <StackPanel>
                 <TextBlock Text="{Binding RotationDegrees, StringFormat=旋转: {0:0}°}"/>
@@ -168,6 +168,7 @@
               </StackPanel>
               <ComboBox x:Name="HorizontalAlignCombo" SelectedItem="{Binding HorizontalAlign}"/>
               <ComboBox x:Name="VerticalAlignCombo" SelectedItem="{Binding VerticalAlign}"/>
+              <ComboBox x:Name="FontWeightCombo" SelectedItem="{Binding SelectedFontWeightOption}"/>
             </StackPanel>
             <TextBlock Text="字体" FontSize="12" Opacity="0.7"/>
             <ComboBox ItemsSource="{Binding FontOptions}"

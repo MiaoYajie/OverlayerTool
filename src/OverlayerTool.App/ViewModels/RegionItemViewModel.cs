@@ -53,6 +53,19 @@ public partial class RegionItemViewModel : ObservableObject
         }
     }
 
+    public RegionFontWeight FontWeight
+    {
+        get => Region.FontWeight;
+        set
+        {
+            if (Region.FontWeight != value)
+            {
+                Region.FontWeight = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
     public string Color
     {
         get => Region.Color;
@@ -102,6 +115,26 @@ public partial class RegionItemViewModel : ObservableObject
                 Region.VerticalAlign = value;
                 OnPropertyChanged();
             }
+        }
+    }
+
+    public static IReadOnlyList<FontWeightOption> FontWeightOptions { get; } =
+    [
+        new(RegionFontWeight.Regular, "常规"),
+        new(RegionFontWeight.Bold, "加粗")
+    ];
+
+    public FontWeightOption SelectedFontWeightOption
+    {
+        get => FontWeightOptions.First(o => o.Weight == Region.FontWeight);
+        set
+        {
+            if (value is null || Region.FontWeight == value.Weight)
+                return;
+
+            Region.FontWeight = value.Weight;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(SelectedFontWeightOption));
         }
     }
 }

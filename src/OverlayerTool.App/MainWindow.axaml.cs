@@ -24,6 +24,7 @@ public partial class MainWindow : Window
 
         HorizontalAlignCombo.ItemsSource = _viewModel.HorizontalAlignOptions;
         VerticalAlignCombo.ItemsSource = _viewModel.VerticalAlignOptions;
+        FontWeightCombo.ItemsSource = RegionItemViewModel.FontWeightOptions;
 
         RegionCanvasControl.RegionDrawn += OnRegionDrawn;
         RegionCanvasControl.RegionMoved += OnRegionMoved;

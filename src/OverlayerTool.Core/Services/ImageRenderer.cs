@@ -112,9 +112,26 @@ public class ImageRenderer
             Color = ParseColor(region.Color)
         };
 
-        using var typeface = FontService.ResolveTypeface(region, template, projectFolder);
-        using var font = new SKFont(typeface, region.FontSize);
+        var (typeface, embolden) = FontService.ResolveFont(region, template, projectFolder);
+        using (typeface)
+        {
+            var fontSize = FitFontSizeToRegion(typeface, text, region.FontSize, rw, rh, region.RotationDegrees, embolden);
+            using var font = new SKFont(typeface, fontSize) { Embolden = embolden };
+            DrawTextWithFont(canvas, rx, ry, rw, rh, region, text, font, paint);
+        }
+    }
 
+    private static void DrawTextWithFont(
+        SKCanvas canvas,
+        double rx,
+        double ry,
+        double rw,
+        double rh,
+        TextRegion region,
+        string text,
+        SKFont font,
+        SKPaint paint)
+    {
         var textBounds = font.MeasureText(text, out _);
 
         var centerX = (float)(rx + rw / 2);
@@ -142,6 +159,52 @@ public class ImageRenderer
         canvas.Translate(-centerX, -centerY);
         canvas.DrawText(text, drawX, drawY, SKTextAlign.Left, font, paint);
         canvas.Restore();
+    }
+
+    private static float FitFontSizeToRegion(
+        SKTypeface typeface,
+        string text,
+        float initialFontSize,
+        double regionWidth,
+        double regionHeight,
+        float rotationDegrees,
+        bool embolden)
+    {
+        const float minFontSize = 1f;
+        var fontSize = initialFontSize;
+
+        while (fontSize >= minFontSize)
+        {
+            using var font = new SKFont(typeface, fontSize) { Embolden = embolden };
+            var textWidth = font.MeasureText(text, out _);
+            var metrics = font.Metrics;
+            var textHeight = metrics.Descent - metrics.Ascent;
+
+            if (TextFitsRegion(textWidth, textHeight, regionWidth, regionHeight, rotationDegrees))
+                return fontSize;
+
+            fontSize *= 0.9f;
+        }
+
+        return minFontSize;
+    }
+
+    private static bool TextFitsRegion(
+        float textWidth,
+        float textHeight,
+        double regionWidth,
+        double regionHeight,
+        float rotationDegrees)
+    {
+        if (Math.Abs(rotationDegrees) < 0.01f)
+            return textWidth <= regionWidth && textHeight <= regionHeight;
+
+        var radians = rotationDegrees * Math.PI / 180.0;
+        var cos = Math.Abs(Math.Cos(radians));
+        var sin = Math.Abs(Math.Sin(radians));
+        var boundsWidth = textWidth * cos + textHeight * sin;
+        var boundsHeight = textWidth * sin + textHeight * cos;
+        return boundsWidth <= regionWidth && boundsHeight <= regionHeight;
     }
 
     private static SKColor ParseColor(string color)

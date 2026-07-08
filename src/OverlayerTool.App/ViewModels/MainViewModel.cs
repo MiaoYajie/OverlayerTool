@@ -429,10 +429,12 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void AddRegion()
     {
+        var bounds = new NormalizedRect(0.1, 0.1, 0.3, 0.08);
         var region = new TextRegion
         {
             Name = $"区域{Regions.Count + 1}",
-            Bounds = new NormalizedRect(0.1, 0.1, 0.3, 0.08)
+            Bounds = bounds,
+            FontSize = ComputeDefaultFontSize(bounds)
         };
         AddRegionInternal(region);
         _projectService.MarkDirty();
@@ -585,7 +587,8 @@ public partial class MainViewModel : ObservableObject
         var region = new TextRegion
         {
             Name = $"区域{Regions.Count + 1}",
-            Bounds = bounds
+            Bounds = bounds,
+            FontSize = ComputeDefaultFontSize(bounds)
         };
         AddRegionInternal(region);
         _projectService.MarkDirty();
@@ -721,4 +724,7 @@ public partial class MainViewModel : ObservableObject
         _projectService.Template.OutputFormat = SelectedOutputFormatOption?.Format ?? OutputImageFormat.Png;
         _projectService.Template.OutputQuality = Math.Clamp(OutputQuality, 1, 100);
     }
+
+    private float ComputeDefaultFontSize(NormalizedRect bounds) =>
+        TextRegion.ComputeDefaultFontSize(bounds, BaseImage?.PixelSize.Height ?? 1000);
 }
